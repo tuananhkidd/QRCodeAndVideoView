@@ -103,6 +103,7 @@ public final class HomeFragment extends BaseFragment<HomePresenter, HomeView>
         if (result != null) {
             ToastUtil.show(result.getText());
             mScannerView.resumeCameraPreview(this);
+            getViewController().addFragment(PlayVideoFragment.class,null,true,true);
         }
     }
 
