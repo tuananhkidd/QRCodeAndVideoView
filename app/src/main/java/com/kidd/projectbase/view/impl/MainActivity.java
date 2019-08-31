@@ -34,9 +34,7 @@ public final class MainActivity extends BaseActivity<MainPresenter, MainView> im
     RelativeLayout rlRetry;
     @BindView(R.id.btn_retry)
     Button btnRetry;
-    NetworkChangeReceiver receiver;
 
-    private int countOnNetWorkEvent = 0;
 
     @Override
     protected void setupComponent(@NonNull AppComponent parentComponent) {
@@ -51,19 +49,11 @@ public final class MainActivity extends BaseActivity<MainPresenter, MainView> im
     public void initView() {
         super.initView();
         getViewController().addFragment(HomeFragment.class,null);
-        EventBus.getDefault().register(this);
-        receiver = new NetworkChangeReceiver();
-        final IntentFilter filter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
-        registerReceiver(receiver, filter);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        EventBus.getDefault().unregister(this);
-        if (receiver != null) {
-            unregisterReceiver(receiver);
-        }
     }
 
     @Override
@@ -97,23 +87,5 @@ public final class MainActivity extends BaseActivity<MainPresenter, MainView> im
     public void hideLayoutRetry() {
 //        super.hideLayoutRetry();
         rlRetry.setVisibility(View.GONE);
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-    public void onNetworkChangeEvent(NetworkChangeEvent networkChangeEvent) {
-        if (countOnNetWorkEvent != 0) {
-            if (networkChangeEvent.isNetWork()) {
-                hideLayoutRetry();
-                if (getViewController().getCurrentFragment() == null) {
-                } else {
-                    getViewController().getCurrentFragment().onRefreshData();
-                }
-            } else {
-                showLayoutRetry();
-            }
-        }
-//        countOnNetWorkEvent++;
-
-        EventBus.getDefault().removeStickyEvent(networkChangeEvent);
     }
 }

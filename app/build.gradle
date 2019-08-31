@@ -111,4 +111,7 @@ dependencies {
     //eventbus
     implementation "org.greenrobot:eventbus:3.1.1"
 
+    //qr code
+    implementation 'me.dm7.barcodescanner:zxing:1.9.8'
+
 }

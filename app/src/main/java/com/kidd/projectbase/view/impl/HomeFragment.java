@@ -1,29 +1,38 @@
 package com.kidd.projectbase.view.impl;
 
-import android.os.Bundle;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
+import com.google.zxing.Result;
 import com.kidd.projectbase.R;
-import com.kidd.projectbase.view.HomeView;
-import com.kidd.projectbase.presenter.loader.PresenterFactory;
-import com.kidd.projectbase.presenter.HomePresenter;
 import com.kidd.projectbase.injection.AppComponent;
-import com.kidd.projectbase.injection.HomeViewModule;
 import com.kidd.projectbase.injection.DaggerHomeViewComponent;
+import com.kidd.projectbase.injection.HomeViewModule;
+import com.kidd.projectbase.presenter.HomePresenter;
+import com.kidd.projectbase.presenter.loader.PresenterFactory;
+import com.kidd.projectbase.utils.ToastUtil;
+import com.kidd.projectbase.view.HomeView;
 
 import javax.inject.Inject;
 
-public final class HomeFragment extends BaseFragment<HomePresenter, HomeView> implements HomeView {
+import androidx.annotation.NonNull;
+import butterknife.BindView;
+import butterknife.OnClick;
+import me.dm7.barcodescanner.zxing.ZXingScannerView;
+
+public final class HomeFragment extends BaseFragment<HomePresenter, HomeView>
+        implements HomeView, ZXingScannerView.ResultHandler {
+    public static final int REQUEST_CODE_CAMERA_PERMISSION = 1996;
     @Inject
     PresenterFactory<HomePresenter> mPresenterFactory;
 
-    // Your presenter is available using the mPresenter variable
+    @BindView(R.id.content_frame)
+    FrameLayout contentFrame;
+    @BindView(R.id.iv_flash)
+    ImageView ivFlash;
+    private ZXingScannerView mScannerView;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -36,6 +45,31 @@ public final class HomeFragment extends BaseFragment<HomePresenter, HomeView> im
                 .homeViewModule(new HomeViewModule())
                 .build()
                 .inject(this);
+    }
+
+    @Override
+    public void initView() {
+        super.initView();
+        requestPermission();
+        mScannerView = new ZXingScannerView(getContext());
+        contentFrame.addView(mScannerView);
+    }
+
+    private void initScanner() {
+        mScannerView.setResultHandler(this);
+        mScannerView.startCamera();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        initScanner();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mScannerView.stopCamera();
     }
 
     @Override
@@ -63,4 +97,40 @@ public final class HomeFragment extends BaseFragment<HomePresenter, HomeView> im
     protected PresenterFactory<HomePresenter> getPresenterFactory() {
         return mPresenterFactory;
     }
+
+    @Override
+    public void handleResult(Result result) {
+        if (result != null) {
+            ToastUtil.show(result.getText());
+            mScannerView.resumeCameraPreview(this);
+        }
+    }
+
+    private void requestPermission() {
+        requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CODE_CAMERA_PERMISSION);
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CODE_CAMERA_PERMISSION: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    initScanner();
+                } else {
+                    ToastUtil.show("Permission camera denied");
+                }
+            }
+        }
+    }
+
+    @OnClick(R.id.iv_flash)
+    void onFlashClick() {
+        if (mPresenter != null) {
+            ivFlash.setImageResource(mPresenter.getFlashStatus() ? R.drawable.ic_flash_off : R.drawable.ic_flash_on);
+            mScannerView.setFlash(!mPresenter.getFlashStatus());
+            mPresenter.setFlashStatus(!mPresenter.getFlashStatus());
+        }
+    }
+
 }

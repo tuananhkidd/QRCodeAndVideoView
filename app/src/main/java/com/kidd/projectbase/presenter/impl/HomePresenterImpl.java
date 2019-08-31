@@ -9,9 +9,9 @@ import com.kidd.projectbase.interactor.HomeInteractor;
 import javax.inject.Inject;
 
 public final class HomePresenterImpl extends BasePresenterImpl<HomeView> implements HomePresenter {
-    /**
-     * The interactor
-     */
+
+    private boolean flashState = false;
+
     @NonNull
     private final HomeInteractor mInteractor;
 
@@ -27,6 +27,16 @@ public final class HomePresenterImpl extends BasePresenterImpl<HomeView> impleme
         super.onStart(viewCreated);
 
         // Your code here. Your view is available using mView and will not be null until next onStop()
+    }
+
+    @Override
+    public boolean getFlashStatus() {
+        return flashState;
+    }
+
+    @Override
+    public void setFlashStatus(boolean isOn) {
+        this.flashState = isOn;
     }
 
     @Override
