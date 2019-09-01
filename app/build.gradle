@@ -31,7 +31,7 @@ android {
         buildTypes {
             debug {
 //                signingConfig signingConfigs.debug
-                buildConfigField "String", "API_BASE_URL", '"http://api.com/"'
+                buildConfigField "String", "API_BASE_URL", '"http://api.timdatxe.com/"'
             }
 
             release {

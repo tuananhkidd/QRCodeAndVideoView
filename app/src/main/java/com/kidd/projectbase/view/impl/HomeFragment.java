@@ -2,11 +2,13 @@ package com.kidd.projectbase.view.impl;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.os.Handler;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.google.zxing.Result;
 import com.kidd.projectbase.R;
+import com.kidd.projectbase.custom.ScannerDialog;
 import com.kidd.projectbase.injection.AppComponent;
 import com.kidd.projectbase.injection.DaggerHomeViewComponent;
 import com.kidd.projectbase.injection.HomeViewModule;
@@ -102,8 +104,24 @@ public final class HomeFragment extends BaseFragment<HomePresenter, HomeView>
     public void handleResult(Result result) {
         if (result != null) {
             ToastUtil.show(result.getText());
-            mScannerView.resumeCameraPreview(this);
-            getViewController().addFragment(PlayVideoFragment.class,null,true,true);
+            ScannerDialog scannerDialog = new ScannerDialog(getContext());
+            scannerDialog.displayInfo(result.getText());
+
+            scannerDialog.setOnClickPlayVideoListener(url -> {
+                scannerDialog.dismiss();
+                getViewController().addFragment(PlayVideoFragment.class, null, true, true);
+                new Handler().postDelayed(() -> {
+                    mScannerView.resumeCameraPreview(this);
+                }, 500);
+
+            });
+
+            scannerDialog.setOnClickReScanListener(() -> {
+                scannerDialog.dismiss();
+                mScannerView.resumeCameraPreview(this);
+            });
+
+            scannerDialog.show();
         }
     }
 

@@ -1,8 +1,13 @@
 package com.kidd.projectbase.presenter.impl;
 
+import android.content.Intent;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
+import com.kidd.projectbase.App;
 import com.kidd.projectbase.presenter.PlayVideoPresenter;
+import com.kidd.projectbase.service.SaveStateService;
 import com.kidd.projectbase.view.PlayVideoView;
 import com.kidd.projectbase.interactor.PlayVideoInteractor;
 
@@ -34,15 +39,31 @@ public final class PlayVideoPresenterImpl extends BasePresenterImpl<PlayVideoVie
         // Your code here, mView will be null after this method until next onStart()
 
         super.onStop();
+        Intent intent = new Intent(App.getContext(),SaveStateService.class);
+        intent.putExtra("ahihi","ahuhu");
+        App.getContext().startService(intent);
     }
 
     @Override
     public void onPresenterDestroyed() {
-        /*
-         * Your code here. After this method, your presenter (and view) will be completely destroyed
-         * so make sure to cancel any HTTP call or database connection
-         */
-
         super.onPresenterDestroyed();
+
+
+
+//        compositeDisposable.add(mInteractor.testApi()
+//                .doOnSubscribe(disposable -> {
+//
+//                })
+//                .doFinally(() -> {
+//
+//                })
+//                .subscribe(
+//                        response -> {
+//                            Log.v("ahihi","success");
+//                        },
+//                        throwable -> {
+//                            Log.v("ahihi","error"+throwable.getMessage());
+//                        }
+//                ));
     }
 }

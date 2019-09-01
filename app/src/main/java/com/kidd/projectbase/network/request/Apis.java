@@ -6,6 +6,7 @@ import com.kidd.projectbase.network.response.CarResponse;
 import java.util.List;
 import java.util.Map;
 
+import io.reactivex.Completable;
 import io.reactivex.Single;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
@@ -17,5 +18,8 @@ public interface Apis {
 
     @GET("v1/cars")
     Single<BaseResponse<List<CarResponse>>> getCar();
+
+    @GET("v1/cars")
+    Completable getCarTest();
 
 }
