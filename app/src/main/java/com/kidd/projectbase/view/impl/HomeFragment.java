@@ -109,11 +109,7 @@ public final class HomeFragment extends BaseFragment<HomePresenter, HomeView>
 
             scannerDialog.setOnClickPlayVideoListener(url -> {
                 scannerDialog.dismiss();
-                getViewController().addFragment(PlayVideoFragment.class, null, true, true);
-                new Handler().postDelayed(() -> {
-                    mScannerView.resumeCameraPreview(this);
-                }, 500);
-
+                getViewController().addFragment(ShowVideoFragment.class, null);
             });
 
             scannerDialog.setOnClickReScanListener(() -> {
@@ -123,6 +119,12 @@ public final class HomeFragment extends BaseFragment<HomePresenter, HomeView>
 
             scannerDialog.show();
         }
+    }
+
+    @Override
+    public void backFromAddFragment() {
+        super.backFromAddFragment();
+        mScannerView.resumeCameraPreview(this);
     }
 
     private void requestPermission() {
