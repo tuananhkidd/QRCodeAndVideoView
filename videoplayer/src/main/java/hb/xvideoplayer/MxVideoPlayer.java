@@ -16,6 +16,7 @@ import android.media.AudioManager;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -43,6 +44,7 @@ import androidx.appcompat.app.ActionBar;
 import mxvideoplayer.app.com.xvideoplayer.R;
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 
+import static hb.xvideoplayer.MxUtils.getAppComptActivity;
 import static hb.xvideoplayer.MxUtils.scanForActivity;
 
 
@@ -401,6 +403,75 @@ public abstract class MxVideoPlayer extends FrameLayout implements MxMediaPlayer
         }
     }
 
+    private int getScreenOrientation() {
+        int rotation = getAppComptActivity(getContext()).getWindowManager().getDefaultDisplay().getRotation();
+        DisplayMetrics dm = new DisplayMetrics();
+        getAppComptActivity(getContext()).getWindowManager().getDefaultDisplay().getMetrics(dm);
+        int width = dm.widthPixels;
+        int height = dm.heightPixels;
+        int orientation;
+        // if the device's natural orientation is portrait:
+        if ((rotation == Surface.ROTATION_0
+                || rotation == Surface.ROTATION_180) && height > width ||
+                (rotation == Surface.ROTATION_90
+                        || rotation == Surface.ROTATION_270) && width > height) {
+            switch (rotation) {
+                case Surface.ROTATION_0:
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+                    break;
+                case Surface.ROTATION_90:
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+                    break;
+                case Surface.ROTATION_180:
+                    orientation =
+                            ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+                    break;
+                case Surface.ROTATION_270:
+                    orientation =
+                            ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+                    break;
+                default:
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+                    break;
+            }
+        }
+        // if the device's natural orientation is landscape or if the device
+        // is square:
+        else {
+            switch (rotation) {
+                case Surface.ROTATION_0:
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+                    break;
+                case Surface.ROTATION_90:
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+                    break;
+                case Surface.ROTATION_180:
+                    orientation =
+                            ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+                    break;
+                case Surface.ROTATION_270:
+                    orientation =
+                            ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+                    break;
+                default:
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+                    break;
+            }
+        }
+
+        return orientation;
+    }
+
+
+    public void toggleFullScreen(){
+        if (getScreenOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+            getAppComptActivity(getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        } else {
+            getAppComptActivity(getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+    }
+
+
     public void startWindowFullscreen() {
         obtainCache();
         CLICK_QUIT_FULLSCREEN_TIME = System.currentTimeMillis();
@@ -428,6 +499,8 @@ public abstract class MxVideoPlayer extends FrameLayout implements MxMediaPlayer
             mxVideoPlayer.setUiPlayState(mCurrentState);
             mxVideoPlayer.addTextureView();
             MxVideoPlayerManager.putListener(mxVideoPlayer);
+
+            toggleFullScreen();
         } catch (Exception e) {
             e.printStackTrace();
         }
