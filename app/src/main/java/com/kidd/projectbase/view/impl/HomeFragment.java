@@ -20,6 +20,7 @@ import com.kidd.projectbase.view.HomeView;
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
+
 import butterknife.BindView;
 import butterknife.OnClick;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
@@ -110,10 +111,6 @@ public final class HomeFragment extends BaseFragment<HomePresenter, HomeView>
             scannerDialog.setOnClickPlayVideoListener(url -> {
                 scannerDialog.dismiss();
                 getViewController().addFragment(PlayVideoFragment.class, null, true, true);
-                new Handler().postDelayed(() -> {
-                    mScannerView.resumeCameraPreview(this);
-                }, 500);
-
             });
 
             scannerDialog.setOnClickReScanListener(() -> {
@@ -129,6 +126,13 @@ public final class HomeFragment extends BaseFragment<HomePresenter, HomeView>
         requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CODE_CAMERA_PERMISSION);
     }
 
+
+    @Override
+    public void backFromAddFragment() {
+        super.backFromAddFragment();
+        mScannerView.resumeCameraPreview(this);
+
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
