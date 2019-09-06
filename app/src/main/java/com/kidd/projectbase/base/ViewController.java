@@ -174,7 +174,7 @@ public class ViewController<T extends BaseFragment> {
     }
 
     public boolean backFromAddFragment(HashMap<String, Object> data) {
-        if (listAddFragment.size() >= 2 && DeviceUtil.hasNetworkConnection(App.getContext())) {
+        if (listAddFragment.size() >= 2) {
             listAddFragment.remove(listAddFragment.size() - 1);
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.remove(currentFragment);

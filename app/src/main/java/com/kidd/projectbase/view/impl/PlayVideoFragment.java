@@ -110,7 +110,7 @@ public final class PlayVideoFragment extends BaseFragment<PlayVideoPresenter, Pl
     public boolean backPressed() {
 //        Log.v("ahihi", "height" +currentHeight+"  "+ videoView.getHeight());
 //        if (currentHeight == videoView.getHeight()) {
-//            getViewController().backFromAddFragment(null);
+            getViewController().backFromAddFragment(null);
 //        } else {
 //            videoView.getPlayer().setDisplayModel(DISPLAY_NORMAL);
 //        }

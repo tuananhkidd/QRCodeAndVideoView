@@ -4,9 +4,11 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import butterknife.BindView;
 import hb.xvideoplayer.MxMediaManager;
 import hb.xvideoplayer.MxVideoPlayer;
+import hb.xvideoplayer.MxVideoPlayerManager;
 import hb.xvideoplayer.MxVideoPlayerWidget;
 
 import android.os.Handler;
@@ -59,7 +61,7 @@ public final class ShowVideoFragment extends BaseFragment<ShowVideoPresenter, Sh
     @Override
     public void onPause() {
         super.onPause();
-        if (MxMediaManager.getInstance().getPlayer() != null) {
+        if (MxMediaManager.getInstance().getPlayer() != null || MxVideoPlayerManager.getCurrentListener() == null) {
             MxMediaManager.getInstance().getPlayer().pause();
             videoPlayerWidget.setUiPlayState(CURRENT_STATE_PAUSE);
         }
@@ -76,7 +78,7 @@ public final class ShowVideoFragment extends BaseFragment<ShowVideoPresenter, Sh
 
     @Override
     public boolean backPressed() {
-        if (!MxVideoPlayer.backPress()) {
+        if (!MxVideoPlayer.backPress() || MxVideoPlayerManager.getCurrentListener() == null) {
             getViewController().backFromAddFragment(null);
         }
         return false;

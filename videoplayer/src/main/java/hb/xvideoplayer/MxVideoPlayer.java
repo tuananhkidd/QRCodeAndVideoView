@@ -3,7 +3,9 @@ package hb.xvideoplayer;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Point;
@@ -41,6 +43,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import androidx.appcompat.app.ActionBar;
+
 import mxvideoplayer.app.com.xvideoplayer.R;
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 
@@ -223,6 +226,25 @@ public abstract class MxVideoPlayer extends FrameLayout implements MxMediaPlayer
         getChildAt(0).measure(childWidthMeasureSpec, childHeightMeasureSpec);
     }
 
+    private void showWifiDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setMessage(getResources().getString(R.string.tips_not_wifi));
+        builder.setPositiveButton(getResources().getString(R.string.tips_not_wifi_confirm),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (MxUtils.hasNetworkConnection(getContext())) {
+                            dialog.dismiss();
+                            preparePlayVideo();
+                        } else {
+                            showWifiDialog();
+                        }
+                        WIFI_TIP_DIALOG_SHOWED = true;
+                    }
+                });
+        builder.create().show();
+    }
+
     @Override
     public void onClick(View v) {
         int id = v.getId();
@@ -231,6 +253,10 @@ public abstract class MxVideoPlayer extends FrameLayout implements MxMediaPlayer
             if (TextUtils.isEmpty(mPlayUrl)) {
                 Toast.makeText(getContext(), getResources().getString(R.string.no_url),
                         Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (!MxUtils.hasNetworkConnection(getContext())) {
+                showWifiDialog();
                 return;
             }
             if (mCurrentState == CURRENT_STATE_NORMAL || mCurrentState == CURRENT_STATE_ERROR) {
@@ -342,7 +368,7 @@ public abstract class MxVideoPlayer extends FrameLayout implements MxMediaPlayer
                         if (brightnessValue >= 0 && brightnessValue <= 255) {
 //                            MxUtils.setWindowBrightness((Activity) getContext(), brightnessValue);
                         }
-                        int brightnessPercent = (int) (mGestureDownBrightness + deltaY * 255  * 3 / mScreenHeight);
+                        int brightnessPercent = (int) (mGestureDownBrightness + deltaY * 255 * 3 / mScreenHeight);
                         showBrightnessDialog(-deltaY, brightnessPercent);
                     }
                     break;
@@ -463,7 +489,7 @@ public abstract class MxVideoPlayer extends FrameLayout implements MxMediaPlayer
     }
 
 
-    public void toggleFullScreen(){
+    public void toggleFullScreen() {
         if (getScreenOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
             getAppComptActivity(getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         } else {
@@ -606,7 +632,7 @@ public abstract class MxVideoPlayer extends FrameLayout implements MxMediaPlayer
             actionBar.hide();
         }
         MxUtils.getAppComptActivity(context).getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 
     private static void showSupportActionBar(Context context) {
@@ -616,7 +642,7 @@ public abstract class MxVideoPlayer extends FrameLayout implements MxMediaPlayer
             actionBar.show();
         }
         MxUtils.getAppComptActivity(context).getWindow().
-                    clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 
     public void resetProgressAndTime() {
